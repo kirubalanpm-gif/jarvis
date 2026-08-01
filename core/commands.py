@@ -1,5 +1,6 @@
 import os
 import datetime
+import random
 
 def open_chrome():
     os.system("start chrome")
@@ -62,6 +63,16 @@ def tell_date():
     date_string = now.strftime("%A, %B %d, %Y")  # e.g., "Friday, August 01, 2026"
     return f"Today is {date_string}."
 
+JOKES = [
+    "Why do programmers prefer dark mode? Because light attracts bugs.",
+    "I told my computer I needed a break, and it said no problem, it'll go to sleep.",
+    "Why do Java developers wear glasses? Because they don't see sharp.",
+    "There are 10 types of people in the world: those who understand binary, and those who don't.",
+    "I would tell you a joke about UDP, but you might not get it."
+]
+
+def tell_joke():
+    return random.choice(JOKES)
 def process_command(command_text):
     """
     Looks at the command text and decides which function to call.
@@ -81,6 +92,8 @@ def process_command(command_text):
         return tell_time()
     elif "date" in text:
         return tell_date()
+    elif "joke" in text:
+        return tell_joke()
     elif "folder" in text:
         for name in ["documents", "downloads", "desktop", "pictures", "jarvis"]:
             if name in text:
