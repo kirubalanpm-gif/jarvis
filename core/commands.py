@@ -32,7 +32,26 @@ def open_folder(folder_name):
         return f"Opening the {folder_name} folder."
     else:
         return f"I don't know a folder called {folder_name}."
+import webbrowser
 
+def search_google(query):
+    url = f"https://www.google.com/search?q={query}"
+    webbrowser.open(url)
+    return f"Searching Google for {query}."
+
+def search_youtube(query):
+    url = f"https://www.youtube.com/results?search_query={query}"
+    webbrowser.open(url)
+    return f"Searching YouTube for {query}."
+
+def extract_search_term(text):
+    """
+    Pulls out everything after the word 'for' in the sentence.
+    Example: 'search google for cute cats' -> 'cute cats'
+    """
+    if " for " in text:
+        return text.split(" for ", 1)[1].strip()
+    return None
 def tell_time():
     now = datetime.datetime.now()
     time_string = now.strftime("%I:%M %p")  # e.g., "02:30 PM"
@@ -66,6 +85,19 @@ def process_command(command_text):
         for name in ["documents", "downloads", "desktop", "pictures", "jarvis"]:
             if name in text:
                 return open_folder(name)
+    if "search google" in text or "google search" in text:
+        term = extract_search_term(text)
+        if term:
+            return search_google(term)
+        else:
+            return "What would you like me to search on Google?"
+    elif "search youtube" in text or "youtube search" in text:
+        term = extract_search_term(text)
+        if term:
+            return search_youtube(term)
+        else:
+            return "What would you like me to search on YouTube?"
+    elif "chrome" in text:
         return "Which folder would you like me to open?"
     else:
         return f"I heard you say: {command_text}. I don't know that command yet."
