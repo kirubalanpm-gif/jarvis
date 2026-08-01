@@ -2,6 +2,7 @@ import os
 import datetime
 import random
 import requests
+import wikipedia
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,6 +10,17 @@ load_dotenv()
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def search_wikipedia(query):
+    try:
+        summary = wikipedia.summary(query, sentences=2)
+        return summary
+    except wikipedia.exceptions.DisambiguationError as e:
+        return f"That could mean several things: {', '.join(e.options[:3])}. Can you be more specific?"
+    except wikipedia.exceptions.PageError:
+        return f"I couldn't find anything on Wikipedia about {query}."
+    except Exception:
+        return "I'm having trouble reaching Wikipedia right now."
 
 def open_vscode():
     os.system("start code")
@@ -117,6 +129,18 @@ def process_command(command_text):
         return tell_joke()
     elif "weather" in text:
         return get_weather()
+    elif "wikipedia" in text or "who is" in text or "what is" in text or "tell me about" in text:
+        term = extract_search_term(text)
+        if not term:
+            # If there's no "for", try removing common trigger phrases instead
+            for phrase in ["tell me about", "wikipedia", "who is", "what is"]:
+                if phrase in text:
+                    term = text.split(phrase, 1)[1].strip()
+                    break
+        if term:
+            return search_wikipedia(term)
+        else:
+            return "What would you like to know about?"
     elif "folder" in text:
         for name in ["documents", "downloads", "desktop", "pictures", "jarvis"]:
             if name in text:
