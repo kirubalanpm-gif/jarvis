@@ -1,6 +1,10 @@
 import os
 import datetime
 import random
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def open_chrome():
     os.system("start chrome")
@@ -13,6 +17,23 @@ def open_vscode():
 def open_notepad():
     os.system("start notepad")
     return "Opening Notepad."
+
+def get_weather(city="Chennai"):
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if response.status_code == 200:
+            temp = data["main"]["temp"]
+            description = data["weather"][0]["description"]
+            return f"The weather in {city} is currently {description}, with a temperature of {temp} degrees Celsius."
+        else:
+            return f"I couldn't get the weather for {city}. Please check the city name."
+    except Exception as e:
+        return "I'm having trouble reaching the weather service right now."
 
 def open_calculator():
     os.system("start calc")
@@ -94,6 +115,8 @@ def process_command(command_text):
         return tell_date()
     elif "joke" in text:
         return tell_joke()
+    elif "weather" in text:
+        return get_weather()
     elif "folder" in text:
         for name in ["documents", "downloads", "desktop", "pictures", "jarvis"]:
             if name in text:
