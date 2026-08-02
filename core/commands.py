@@ -5,12 +5,35 @@ import requests
 import wikipedia
 from dotenv import load_dotenv
 from plyer import notification
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 load_dotenv()
 
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def get_volume_interface():
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices._dev.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    return cast(interface, POINTER(IAudioEndpointVolume))
+
+def set_volume(level):
+    volume = get_volume_interface()
+    volume.SetMasterVolumeLevelScalar(level / 100, None)
+    return f"Volume set to {level} percent."
+
+def mute_volume():
+    volume = get_volume_interface()
+    volume.SetMute(1, None)
+    return "Muted."
+
+def unmute_volume():
+    volume = get_volume_interface()
+    volume.SetMute(0, None)
+    return "Unmuted."
 
 def show_notification(title, message):
     notification.notify(title=title, message=message, timeout=5)
@@ -130,6 +153,17 @@ def process_command(command_text):
         return tell_time()
     elif "date" in text:
         return tell_date()
+    elif "mute" in text:
+        return mute_volume()
+    elif "unmute" in text:
+        return unmute_volume()
+    elif "volume" in text:
+        import re
+        numbers = re.findall(r'\d+', text)
+        if numbers:
+            return set_volume(int(numbers[0]))
+        else:
+            return "What volume level would you like?"
     elif "joke" in text:
         return tell_joke()
     elif "weather" in text:
