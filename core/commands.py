@@ -17,6 +17,22 @@ def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
 
+def lock_pc():
+    os.system("rundll32.exe user32.dll,LockWorkStation")
+    return "Locking the PC."
+
+def shutdown_pc():
+    os.system("shutdown /s /t 5")
+    return "Shutting down in 5 seconds."
+
+def restart_pc():
+    os.system("shutdown /r /t 5")
+    return "Restarting in 5 seconds."
+
+def sleep_pc():
+    os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+    return "Going to sleep."
+
 def take_screenshot():
     screenshots_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
     os.makedirs(screenshots_folder, exist_ok=True)
@@ -177,6 +193,14 @@ def process_command(command_text):
         return take_screenshot()
     elif "unmute" in text:
         return unmute_volume()
+    elif "lock" in text:
+        return lock_pc()
+    elif "shutdown" in text or "shut down" in text:
+        return shutdown_pc()
+    elif "restart" in text:
+        return restart_pc()
+    elif "sleep" in text:
+        return sleep_pc()
     elif "brightness" in text:
         import re
         numbers = re.findall(r'\d+', text)
