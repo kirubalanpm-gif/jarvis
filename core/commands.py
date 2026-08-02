@@ -7,6 +7,7 @@ import screen_brightness_control as sbc
 import pyautogui
 import pyperclip
 from dotenv import load_dotenv
+from ai.chat import ask_ai
 from database.db import get_connection
 from plyer import notification
 from ctypes import cast, POINTER
@@ -319,4 +320,4 @@ def process_command(command_text):
     elif "chrome" in text:
         return "Which folder would you like me to open?"
     else:
-        return f"I heard you say: {command_text}. I don't know that command yet."
+        return ask_ai(command_text)
