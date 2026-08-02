@@ -4,6 +4,7 @@ import random
 import requests
 import wikipedia
 import screen_brightness_control as sbc
+import pyautogui
 from dotenv import load_dotenv
 from plyer import notification
 from ctypes import cast, POINTER
@@ -15,6 +16,15 @@ load_dotenv()
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def take_screenshot():
+    screenshots_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
+    os.makedirs(screenshots_folder, exist_ok=True)
+    filename = datetime.datetime.now().strftime("screenshot_%Y%m%d_%H%M%S.png")
+    filepath = os.path.join(screenshots_folder, filename)
+    screenshot = pyautogui.screenshot()
+    screenshot.save(filepath)
+    return f"Screenshot saved."
 
 def set_brightness(level):
     try:
@@ -163,6 +173,8 @@ def process_command(command_text):
         return tell_date()
     elif "mute" in text:
         return mute_volume()
+    elif "screenshot" in text:
+        return take_screenshot()
     elif "unmute" in text:
         return unmute_volume()
     elif "brightness" in text:
