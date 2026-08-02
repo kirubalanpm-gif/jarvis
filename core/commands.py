@@ -3,6 +3,7 @@ import datetime
 import random
 import requests
 import wikipedia
+import screen_brightness_control as sbc
 from dotenv import load_dotenv
 from plyer import notification
 from ctypes import cast, POINTER
@@ -14,6 +15,13 @@ load_dotenv()
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def set_brightness(level):
+    try:
+        sbc.set_brightness(level)
+        return f"Brightness set to {level} percent."
+    except Exception:
+        return "I couldn't change the brightness. Your display may not support this."
 
 def get_volume_interface():
     devices = AudioUtilities.GetSpeakers()
@@ -157,6 +165,13 @@ def process_command(command_text):
         return mute_volume()
     elif "unmute" in text:
         return unmute_volume()
+    elif "brightness" in text:
+        import re
+        numbers = re.findall(r'\d+', text)
+        if numbers:
+            return set_brightness(int(numbers[0]))
+        else:
+            return "What brightness level would you like?"
     elif "volume" in text:
         import re
         numbers = re.findall(r'\d+', text)
