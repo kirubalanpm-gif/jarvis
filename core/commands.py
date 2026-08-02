@@ -4,12 +4,17 @@ import random
 import requests
 import wikipedia
 from dotenv import load_dotenv
+from plyer import notification
 
 load_dotenv()
 
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def show_notification(title, message):
+    notification.notify(title=title, message=message, timeout=5)
+    return f"Notification sent: {message}"
 
 def search_wikipedia(query):
     try:
@@ -129,6 +134,10 @@ def process_command(command_text):
         return tell_joke()
     elif "weather" in text:
         return get_weather()
+    elif "remind me" in text or "notify me" in text:
+        term = extract_search_term(text)
+        message = term if term else "Reminder from JARVIS"
+        return show_notification("JARVIS Reminder", message)
     elif "wikipedia" in text or "who is" in text or "what is" in text or "tell me about" in text:
         term = extract_search_term(text)
         if not term:
