@@ -5,6 +5,7 @@ import requests
 import wikipedia
 import screen_brightness_control as sbc
 import pyautogui
+import pyperclip
 from dotenv import load_dotenv
 from plyer import notification
 from ctypes import cast, POINTER
@@ -16,6 +17,17 @@ load_dotenv()
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def read_clipboard():
+    content = pyperclip.paste()
+    if content:
+        return f"Your clipboard contains: {content}"
+    return "Your clipboard is empty."
+
+def copy_to_clipboard(text):
+    pyperclip.copy(text)
+    return f"Copied to clipboard: {text}"
+
 
 def lock_pc():
     os.system("rundll32.exe user32.dll,LockWorkStation")
@@ -201,6 +213,8 @@ def process_command(command_text):
         return restart_pc()
     elif "sleep" in text:
         return sleep_pc()
+    elif "clipboard" in text or "what did i copy" in text:
+        return read_clipboard()
     elif "brightness" in text:
         import re
         numbers = re.findall(r'\d+', text)
