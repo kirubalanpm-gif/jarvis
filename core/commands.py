@@ -7,6 +7,7 @@ import screen_brightness_control as sbc
 import pyautogui
 import pyperclip
 from dotenv import load_dotenv
+from database.db import get_connection
 from plyer import notification
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
@@ -17,6 +18,40 @@ load_dotenv()
 def open_chrome():
     os.system("start chrome")
     return "Opening Chrome."
+
+def remember_fact(key, value):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR REPLACE INTO memory (key, value) VALUES (?, ?)", (key, value))
+    conn.commit()
+    conn.close()
+    return f"I'll remember that {key} is {value}."
+
+def recall_fact(key):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT value FROM memory WHERE key = ?", (key,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return f"{key} is {result[0]}."
+    return f"I don't know {key} yet."
+
+def save_note(content):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO notes (content, created_at) VALUES (?, ?)", (content, datetime.datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    return "Note saved."
+
+def save_reminder(content):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO reminders (content, created_at) VALUES (?, ?)", (content, datetime.datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    return "Reminder saved."
 
 def read_clipboard():
     content = pyperclip.paste()
@@ -215,6 +250,22 @@ def process_command(command_text):
         return sleep_pc()
     elif "clipboard" in text or "what did i copy" in text:
         return read_clipboard()
+    elif "remember my name is" in text:
+        name = text.split("remember my name is", 1)[1].strip()
+        return remember_fact("name", name)
+    elif "what is my name" in text or "what's my name" in text:
+        return recall_fact("name")
+    elif "remember that" in text:
+        fact = text.split("remember that", 1)[1].strip()
+        return remember_fact("note", fact)
+    elif "take a note" in text or "save a note" in text:
+        term = extract_search_term(text)
+        content = term if term else text.split("note", 1)[1].strip()
+        return save_note(content)
+    elif "add a reminder" in text or "set a reminder" in text:
+        term = extract_search_term(text)
+        content = term if term else text.split("reminder", 1)[1].strip()
+        return save_reminder(content)
     elif "brightness" in text:
         import re
         numbers = re.findall(r'\d+', text)

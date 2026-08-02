@@ -2,6 +2,7 @@ import asyncio
 from voice.speak import speak
 from voice.listen import listen
 from core.commands import process_command
+from database.db import init_db
 import config
 
 WAKE_WORD = "jarvis"
@@ -13,6 +14,7 @@ async def handle_command(command_text):
     await speak(response)
 
 async def main_loop():
+    init_db()
     await speak(config.GREETING)
 
     while True:
